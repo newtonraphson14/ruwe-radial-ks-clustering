@@ -1,0 +1,7 @@
+cluster_name,members_csv,xlim_arcmin
+NGC 2516,../data/members/NGC2516_Members_Final.csv,100
+M45 (Pleiades),../data/members/M45_Members_Final.csv,180
+M44 (Praesepe),../data/members/M44_Members_Final.csv,150
+M67,../data/members/M67_Members_Final.csv,60
+NGC 188,../data/members/NGC188_Members_Final.csv,60
+

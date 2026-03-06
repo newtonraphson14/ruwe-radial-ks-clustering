@@ -1,0 +1,9 @@
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+.python-version
+.venv/
+venv/
+.DS_Store
+data/figures/generated/
+
