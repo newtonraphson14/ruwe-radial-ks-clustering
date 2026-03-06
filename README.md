@@ -1,40 +1,63 @@
 # RUWE Radial KS Clustering
 
-Public-facing version of an open-cluster analysis workflow that combines:
+Open-cluster analysis workflow for:
 
-- Monte Carlo + KMeans voting for membership inference
-- Gaia color-magnitude diagrams
-- RUWE-colored CMD inspection
-- Radial Kolmogorov-Smirnov tests between RUWE-low and RUWE-high subsamples
-- A multi-cluster summary grid for comparison across clusters
+- membership inference with Monte Carlo plus KMeans voting
+- Gaia color-magnitude diagram inspection
+- RUWE-colored CMD analysis
+- radial Kolmogorov-Smirnov tests between RUWE-low and RUWE-high subsamples
+- multi-cluster comparison in a single summary figure
 
-The repository keeps the cleaned notebooks for interactive use, but also adds a command-line script so the workflow can be run without editing notebook cells one by one.
+This repository is a cleaned public version of the original project notebooks, with a small CLI added so the main steps can be run without manually editing notebook cells.
 
-## Included Data
+![Multi-cluster summary figure](data/figures/figure1_evolution_grid.png)
 
-- Raw VizieR query tables for `M45`, `M44`, `M67`, `NGC2516`, and `NGC3532`
-- Final member catalogs for `M44`, `M45`, `M67`, `NGC188`, `NGC2516`, and `NGC3532`
-- A sample final figure in [data/figures/figure1_evolution_grid.png](/home/ikbarfaiz/ruwe-radial-ks-clustering/data/figures/figure1_evolution_grid.png)
-- Archived original notebooks in [archive/original-notebooks](/home/ikbarfaiz/ruwe-radial-ks-clustering/archive/original-notebooks)
+## What This Repository Contains
 
-`NGC188` currently includes only the final member catalog. The raw VizieR query table for that cluster was not present in the source files I found locally, so Step 1 is not fully reproducible for `NGC188` until that raw input is restored.
+- `notebooks/`: cleaned notebooks for interactive exploration
+- `scripts/run_analysis.py`: command-line entry point for the main workflow
+- `data/raw/`: raw VizieR-style query tables used as membership input
+- `data/members/`: final member catalogs used in CMD and radial analyses
+- `configs/multicluster_grid.csv`: cluster list for the combined summary plot
+- `archive/original-notebooks/`: original step-by-step notebooks kept for provenance
 
-## Repository Layout
+## Workflow
 
-`notebooks/`
-Interactive notebooks cleaned up for public sharing.
+The current public workflow is organized into four main steps:
 
-`scripts/run_analysis.py`
-Single CLI entry point for the full pipeline.
+1. `membership`
+   Load a raw Gaia/VizieR table, standardize columns, run Monte Carlo perturbations, cluster with KMeans, and assign membership probabilities by repeated voting.
+2. `cmd`
+   Plot a standard Gaia color-magnitude diagram from a final member catalog.
+3. `ruwe-cmd`
+   Plot the same CMD with points colored by RUWE.
+4. `radial-ks`
+   Compare the radial distributions of RUWE-low and RUWE-high subsamples using a two-sample KS test.
 
-`data/raw/`
-Raw VizieR-style query tables.
+The `grid` command combines the CMD and radial KS view across multiple clusters.
 
-`data/members/`
-Final member catalogs used by the later analysis steps.
+## Data Included
 
-`configs/multicluster_grid.csv`
-Config file used to build the combined summary figure.
+Raw query tables currently included:
+
+- `M45`
+- `M44`
+- `M67`
+- `NGC2516`
+- `NGC3532`
+
+Final member catalogs currently included:
+
+- `M45`
+- `M44`
+- `M67`
+- `NGC188`
+- `NGC2516`
+- `NGC3532`
+
+## Limitation
+
+`NGC188` currently includes only the final member catalog. The raw input table for that cluster is not present in this repository, so the membership-inference step is not yet fully reproducible for `NGC188`.
 
 ## Setup
 
@@ -44,9 +67,9 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Quickstart
+## Quick Start
 
-Run membership inference for `M67`:
+Recompute membership for `M67` from the raw table:
 
 ```bash
 python3 scripts/run_analysis.py membership \
@@ -60,7 +83,7 @@ python3 scripts/run_analysis.py membership \
   --figure-dir data/figures/generated/m67
 ```
 
-Plot a standard CMD from a member catalog:
+Make a standard CMD:
 
 ```bash
 python3 scripts/run_analysis.py cmd \
@@ -69,7 +92,7 @@ python3 scripts/run_analysis.py cmd \
   --output-figure data/figures/generated/M67_cmd.png
 ```
 
-Plot a RUWE-colored CMD:
+Make a RUWE-colored CMD:
 
 ```bash
 python3 scripts/run_analysis.py ruwe-cmd \
@@ -89,7 +112,7 @@ python3 scripts/run_analysis.py radial-ks \
   --output-figure data/figures/generated/M67_radial_ks.png
 ```
 
-Generate the multi-cluster summary grid:
+Build the multi-cluster summary figure:
 
 ```bash
 python3 scripts/run_analysis.py grid \
@@ -97,9 +120,29 @@ python3 scripts/run_analysis.py grid \
   --output-figure data/figures/generated/evolution_grid_generated.png
 ```
 
-## Notes
+## CLI Summary
 
-- The public notebooks are based on the cleaned versions already present in the original project under `Jurnal/Codingan/GITHUB`.
-- The archived `step1.ipynb` to `step5.ipynb` files are preserved for provenance, but the cleaned notebooks and CLI are the recommended public entry points.
-- `phot_g_mean_mag` is plotted as apparent magnitude unless you pass a distance modulus in the CLI.
+```bash
+python3 scripts/run_analysis.py --help
+python3 scripts/run_analysis.py membership --help
+python3 scripts/run_analysis.py cmd --help
+python3 scripts/run_analysis.py ruwe-cmd --help
+python3 scripts/run_analysis.py radial-ks --help
+python3 scripts/run_analysis.py grid --help
+```
 
+## Repository Notes
+
+- The cleaned notebooks are the recommended notebook entry points for readers.
+- The archived `step1.ipynb` to `step5.ipynb` files are preserved to keep the original workflow history.
+- `phot_g_mean_mag` is treated as apparent magnitude unless a distance modulus is provided explicitly in the CLI.
+- The radial analysis uses RUWE as an astrometric proxy for subsample comparison, not as a definitive binary classifier.
+
+## Main Files
+
+- [scripts/run_analysis.py](scripts/run_analysis.py)
+- [configs/multicluster_grid.csv](configs/multicluster_grid.csv)
+- [notebooks/01_membership_inference.ipynb](notebooks/01_membership_inference.ipynb)
+- [notebooks/02_color_magnitude.ipynb](notebooks/02_color_magnitude.ipynb)
+- [notebooks/03_ruwe_colored_cmd.ipynb](notebooks/03_ruwe_colored_cmd.ipynb)
+- [notebooks/04_radial_ks_test.ipynb](notebooks/04_radial_ks_test.ipynb)
